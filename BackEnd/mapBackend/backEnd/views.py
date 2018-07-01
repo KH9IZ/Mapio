@@ -7,7 +7,14 @@ from django.views.decorators.http import require_POST, require_GET
 from BackEnd.mapBackend.backEnd.models import Square, UserProfile
 from BackEnd.mapBackend.backEnd.utils import get_square_id_by_location, get_random_color
 
+'''
+API documentation at https://docs.google.com/document/d/1pbdqBmTb9zvqssmj4nSL7hbwmlvXY7tLn7uxyroTjP0/edit
+'''
 
+'''
+TODO Think about security
+Adds user to db on first login
+'''
 @require_POST
 def add_user(request):
     data = request.POST
@@ -20,7 +27,10 @@ def add_user(request):
         'user_color': new_user.color
     })
 
-
+'''
+TODO Paint area on crossing user's existing path
+Resets square owner
+'''
 @require_POST
 def set_square_state(request):
     data = request.POST
@@ -45,7 +55,35 @@ def set_square_state(request):
         'status': 'OK'
     })
 
+'''
+TODO For later versions
+'''
+@require_GET
+def get_frame_data(request):
+    data = request.GET
 
+    bottom_left_longitude = data['bottom_left_corner']['longitude']
+    bottom_left_latitude = data['bottom_left_corner']['latitude']
+    top_right_longitude = data['top_right_corner']['longitude']
+    top_right_latitude = data['top_right_corner']['latitude']
+
+    raw_squares = Square.objects.filter(
+
+    )
+
+
+'''
+TODO
+/get_frame_data temporary replacement
+'''
+@require_GET
+def get_squares_data(request):
+    pass
+
+
+'''
+Returns user's score
+'''
 @require_GET
 def get_user_score(request):
     data = request.GET
@@ -58,6 +96,9 @@ def get_user_score(request):
     })
 
 
+'''
+Returns top 5 users
+'''
 @require_GET
 def get_scoreboard(request):
     raw_scoreboard = UserProfile.objects.annotate(score=Count('UserProfile__Square')).\
