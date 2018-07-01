@@ -30,9 +30,16 @@ def set_square_state(request):
     latitude = data['latitude']
 
     vertical_id, horizontal_id = get_square_id_by_location(longitude, latitude)
-    current_square = Square.objects.get(vertical_id=vertical_id, horizontal_id=horizontal_id)
-    current_square.owner = UserProfile.objects.get(user_id)
-    current_square.save()
+    if Square.objects.exists(vertical_id=vertical_id, horizontal_id=horizontal_id):  # Check if this square exists already
+        current_square = Square.objects.get(vertical_id=vertical_id, horizontal_id=horizontal_id)
+        current_square.owner = UserProfile.objects.get(user_id)
+        current_square.save()
+    else:
+        current_square = Square(vertical_id=vertical_id,
+                                horizontal_id=horizontal_id,
+                                owner=UserProfile.objects.get(user_id))
+        current_square.save()
+
 
     return JsonResponse({
         'status': 'OK'
