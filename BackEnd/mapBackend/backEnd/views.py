@@ -1,4 +1,4 @@
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.http import JsonResponse
 
 
@@ -36,10 +36,10 @@ def set_square_state(request):
     data = request.POST
 
     user_id = data['user_id']
-    longitude = data['longitude']
     latitude = data['latitude']
+    longitude = data['longitude']
 
-    vertical_id, horizontal_id = get_square_id_by_location(longitude, latitude)
+    horizontal_id, vertical_id = get_square_id_by_location(latitude, longitude)
     if Square.objects.exists(vertical_id=vertical_id, horizontal_id=horizontal_id):  # Check if this square exists already
         current_square = Square.objects.get(vertical_id=vertical_id, horizontal_id=horizontal_id)
         current_square.owner = UserProfile.objects.get(user_id)
@@ -68,7 +68,6 @@ def get_frame_data(request):
     top_right_latitude = data['top_right_corner']['latitude']
 
     raw_squares = Square.objects.filter(
-
     )
 
 
