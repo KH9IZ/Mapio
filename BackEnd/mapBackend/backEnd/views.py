@@ -24,7 +24,7 @@ def add_user(request):
     new_user.save()
 
     return JsonResponse({
-        'user_color': new_user.color
+        'user_color': new_user.color,
     })
 
 '''
@@ -52,7 +52,7 @@ def set_square_state(request):
 
 
     return JsonResponse({
-        'status': 'OK'
+        'status': 'OK',
     })
 
 '''
@@ -78,7 +78,15 @@ TODO
 '''
 @require_GET
 def get_squares_data(request):
-    pass
+    raw_squares = Square.objects.all()
+    squares = []
+
+    for square in raw_squares:
+        squares.append({
+            'vertical_id': square.vertical_id,
+            'horizontal_id': square.horizontal_id,
+            'color': square.owner.color,
+        })
 
 
 '''
@@ -92,7 +100,7 @@ def get_user_score(request):
     user_score = Square.objects.filter(owner=user_id).count()
 
     return JsonResponse({
-        'user_score': user_score
+        'user_score': user_score,
     })
 
 
@@ -112,5 +120,5 @@ def get_scoreboard(request):
         })
 
     return JsonResponse({
-        'scoreboard': scoreboard
+        'scoreboard': scoreboard,
     })
