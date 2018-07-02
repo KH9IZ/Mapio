@@ -9,6 +9,7 @@ from BackEnd.mapBackend.backEnd.utils import get_square_id_by_location, get_rand
 
 '''
 API documentation at https://docs.google.com/document/d/1pbdqBmTb9zvqssmj4nSL7hbwmlvXY7tLn7uxyroTjP0/edit
+TODO Check lat/lon consistency !important
 '''
 
 '''
@@ -39,7 +40,7 @@ def set_square_state(request):
     latitude = data['latitude']
     longitude = data['longitude']
 
-    horizontal_id, vertical_id = get_square_id_by_location(latitude, longitude)
+    vertical_id, horizontal_id = get_square_id_by_location(latitude, longitude)
     if Square.objects.exists(vertical_id=vertical_id, horizontal_id=horizontal_id):  # Check if this square exists already
         current_square = Square.objects.get(vertical_id=vertical_id, horizontal_id=horizontal_id)
         current_square.owner = UserProfile.objects.get(user_id)
@@ -120,4 +121,22 @@ def get_scoreboard(request):
 
     return JsonResponse({
         'scoreboard': scoreboard,
+    })
+
+
+'''
+Returns nearest grid square
+'''
+@require_GET
+def get_nearest_square(request):
+    data = request['GET']
+
+    latitude = data['latitude']
+    longitude = data['longitude']
+
+    vertical_id, horizontal_id = get_square_id_by_location(latitude, longitude)
+
+    return JsonResponse({
+        'latitude': vertical_id * 3600,
+        'longitude': horizontal_id * 2400,
     })
