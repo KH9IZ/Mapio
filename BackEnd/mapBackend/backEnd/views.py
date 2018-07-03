@@ -57,18 +57,33 @@ def set_square_state(request):
 
 '''
 TODO For later versions
+TODO 0 meridian error
 '''
 @require_GET
 def get_frame_data(request):
     data = request.GET
+    response = []
 
     bottom_left_longitude = data['bottom_left_corner']['longitude']
     bottom_left_latitude = data['bottom_left_corner']['latitude']
     top_right_longitude = data['top_right_corner']['longitude']
     top_right_latitude = data['top_right_corner']['latitude']
 
-    raw_squares = Square.objects.filter(
-    )
+    bottom_left_vertical_id, bottom_left_horizontal_id = get_square_id_by_location(bottom_left_latitude,
+                                                                                   bottom_left_longitude)
+    top_right_vertical_id, top_right_horizontal_id = get_square_id_by_location(top_right_latitude,
+                                                                               top_right_longitude)
+
+    for square in Square.objects.filter(horizontal_id__gte=bottom_left_horizontal_id,
+                                        horizontal_id__lte=top_right_horizontal_id,
+                                        vertical_id__gte=bottom_left_vertical_id,
+                                        vertical_id__lte=top_right_vertical_id):
+        response.append({'horizontal_id': square.horizontal_id,
+                         'vertical_id': square.vertical_id,
+                         'color': square.owner.color})
+    return JsonResponse({
+        'squares': response
+    })
 
 
 '''
@@ -136,8 +151,8 @@ def get_nearest_square(request):
     vertical_id, horizontal_id = get_square_id_by_location(latitude, longitude)
 
     return JsonResponse({
-        'nearest_latitude': vertical_id * 3600,
-        'nearest_longitude': horizontal_id * 2400,
+        'nearest_latitude': vertical_id,
+        'nearest_longitude': horizontal_id,
     })
 
 @require_GET
