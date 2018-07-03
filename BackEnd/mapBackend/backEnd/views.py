@@ -152,6 +152,6 @@ def get_nearest_square(request):
     vertical_id, horizontal_id = get_square_id_by_location(latitude, longitude)
 
     return JsonResponse({
-        'nearest_latitude': vertical_id * 3600,
-        'nearest_longitude': horizontal_id * 2400,
+        'nearest_latitude': vertical_id,
+        'nearest_longitude': horizontal_id,
     })
