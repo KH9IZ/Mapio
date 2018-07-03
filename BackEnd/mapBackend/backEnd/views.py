@@ -4,8 +4,8 @@ from django.http import JsonResponse
 
 from django.views.decorators.http import require_POST, require_GET
 
-from BackEnd.mapBackend.backEnd.models import Square, UserProfile
-from BackEnd.mapBackend.backEnd.utils import get_square_id_by_location, get_random_color
+from backEnd.models import Square, UserProfile
+from backEnd.utils import get_square_id_by_location, get_random_color
 
 '''
 API documentation at https://docs.google.com/document/d/1pbdqBmTb9zvqssmj4nSL7hbwmlvXY7tLn7uxyroTjP0/edit
@@ -43,14 +43,13 @@ def set_square_state(request):
     vertical_id, horizontal_id = get_square_id_by_location(latitude, longitude)
     if Square.objects.exists(vertical_id=vertical_id, horizontal_id=horizontal_id):  # Check if this square exists already
         current_square = Square.objects.get(vertical_id=vertical_id, horizontal_id=horizontal_id)
-        current_square.owner = UserProfile.objects.get(user_id)
+        current_square.owner = UserProfile.objects.get(user_id=user_id)
         current_square.save()
     else:
         current_square = Square(vertical_id=vertical_id,
                                 horizontal_id=horizontal_id,
-                                owner=UserProfile.objects.get(user_id))
+                                owner=UserProfile.objects.get(user_id=user_id))
         current_square.save()
-
 
     return JsonResponse({
         'status': 'OK',
@@ -139,4 +138,15 @@ def get_nearest_square(request):
     return JsonResponse({
         'nearest_latitude': vertical_id * 3600,
         'nearest_longitude': horizontal_id * 2400,
+    })
+
+@require_GET
+def get_user_color(request):
+    data = request.GET
+
+    user_id = data['user_id']
+    user_color = UserProfile.objects.get(user_id=user_id).color
+
+    return JsonResponse({
+        'user_color': user_color,
     })

@@ -5,7 +5,7 @@ from django.db import models
 class Square(models.Model):
     vertical_id = models.IntegerField(blank=False)
     horizontal_id = models.IntegerField(blank=False)
-    owner = models.ForeignKey('UserProfile', on_delete=models.SET_NULL)
+    owner = models.ForeignKey('UserProfile', on_delete=models.CASCADE)
 
 
 class UserProfile(models.Model):
