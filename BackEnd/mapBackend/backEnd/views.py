@@ -243,6 +243,7 @@ def wipe(request):
     })
 
 
+@csrf_exempt
 def report(request):
     try:
         print(request.META['REMOTE_ADDR'])
