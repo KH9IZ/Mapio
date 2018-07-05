@@ -49,12 +49,6 @@ def set_square_state(request):
     except:
         data = request.POST
 
-    print(data)
-    print(data)
-    print(data)
-    print(data)
-    print(data)
-
     user_id = data['user_id']
     latitude = float(data['latitude'])
     longitude = float(data['longitude'])
@@ -243,3 +237,7 @@ Deletes all squares
 @csrf_exempt
 def wipe(request):
     Square.objects.all().delete()
+
+    return JsonResponse({
+        'status': 'OK',
+    })
