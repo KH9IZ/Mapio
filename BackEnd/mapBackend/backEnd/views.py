@@ -1,7 +1,7 @@
 import json
 
 from django.db.models import Count
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST, require_GET
 
@@ -241,3 +241,10 @@ def wipe(request):
     return JsonResponse({
         'status': 'OK',
     })
+
+
+def report(request):
+    print(request.META['REMOTE_ADDR'])
+    print(request.META['HTTP_X_FORWARDED_FOR'])
+
+    return HttpResponse(status=418)
