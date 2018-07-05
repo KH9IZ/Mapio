@@ -225,3 +225,12 @@ def drop_bomb(request):
     return JsonResponse({
         'status': 'OK',
     })
+
+
+'''
+Deletes all squares
+'''
+@require_POST
+@csrf_exempt
+def wipe(request):
+    Square.objects.all().delete()
