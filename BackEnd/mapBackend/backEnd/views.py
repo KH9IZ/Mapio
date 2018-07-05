@@ -29,13 +29,6 @@ def add_user(request):
     except:
         data = request.POST
 
-
-    print(data)
-    print(data)
-    print(data)
-    print(data)
-    print(data)
-
     user_id = data['user_id']
     new_user = UserProfile(user_id=user_id, color=get_random_color())
     new_user.save()
@@ -55,6 +48,12 @@ def set_square_state(request):
         data = json.loads(request.body)
     except:
         data = request.POST
+
+    print(data)
+    print(data)
+    print(data)
+    print(data)
+    print(data)
 
     user_id = data['user_id']
     latitude = float(data['latitude'])
