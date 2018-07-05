@@ -24,7 +24,11 @@ Adds user to db on first login
 @require_POST
 @csrf_exempt
 def add_user(request):
-    data = json.loads(request.body)
+    try:
+        data = json.loads(request.body)
+    except:
+        data = request.POST
+
 
     print(data)
     print(data)
@@ -47,7 +51,10 @@ Resets square owner
 @require_POST
 @csrf_exempt
 def set_square_state(request):
-    data = json.loads(request.body)
+    try:
+        data = json.loads(request.body)
+    except:
+        data = request.POST
 
     user_id = data['user_id']
     latitude = float(data['latitude'])
@@ -198,7 +205,10 @@ Drops a bomb on user's current location
 @require_POST
 @csrf_exempt
 def drop_bomb(request):
-    data = json.loads(request.body)
+    try:
+        data = json.loads(request.body)
+    except:
+        data = request.POST
 
     user_id = data['user_id']
     latitude = float(data['latitude'])
