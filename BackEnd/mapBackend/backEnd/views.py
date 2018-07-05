@@ -1,7 +1,8 @@
-from django.db.models import Count, Q
+import json
+
+from django.db.models import Count
 from django.http import JsonResponse
-
-
+from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST, require_GET
 
 from backEnd.models import Square, UserProfile
@@ -9,16 +10,27 @@ from backEnd.utils import get_square_id_by_location, get_random_color
 
 '''
 API documentation at https://docs.google.com/document/d/1pbdqBmTb9zvqssmj4nSL7hbwmlvXY7tLn7uxyroTjP0/edit
-TODO Check lat/lon consistency !important
+TODO Remove copypasta
+
+DONE Check lat/lon consistency !important
+DONE add floats
 '''
+
 
 '''
 TODO Think about security
 Adds user to db on first login
 '''
 @require_POST
+@csrf_exempt
 def add_user(request):
-    data = request.POST
+    data = json.loads(request.body)
+
+    print(data)
+    print(data)
+    print(data)
+    print(data)
+    print(data)
 
     user_id = data['user_id']
     new_user = UserProfile(user_id=user_id, color=get_random_color())
@@ -28,20 +40,22 @@ def add_user(request):
         'user_color': new_user.color,
     })
 
+
 '''
-TODO Paint area on crossing user's existing path
 Resets square owner
 '''
 @require_POST
+@csrf_exempt
 def set_square_state(request):
-    data = request.POST
+    data = json.loads(request.body)
 
     user_id = data['user_id']
-    latitude = data['latitude']
-    longitude = data['longitude']
+    latitude = float(data['latitude'])
+    longitude = float(data['longitude'])
 
     vertical_id, horizontal_id = get_square_id_by_location(latitude, longitude)
-    if Square.objects.exists(vertical_id=vertical_id, horizontal_id=horizontal_id):  # Check if this square exists already
+
+    if Square.objects.filter(vertical_id=vertical_id, horizontal_id=horizontal_id).exists():  # Check if this square exists already
         current_square = Square.objects.get(vertical_id=vertical_id, horizontal_id=horizontal_id)
         current_square.owner = UserProfile.objects.get(user_id=user_id)
         current_square.save()
@@ -55,6 +69,7 @@ def set_square_state(request):
         'status': 'OK',
     })
 
+
 '''
 TODO For later versions
 TODO 0 meridian error
@@ -64,10 +79,10 @@ def get_frame_data(request):
     data = request.GET
     response = []
 
-    bottom_left_longitude = data['bottom_left_corner']['longitude']
-    bottom_left_latitude = data['bottom_left_corner']['latitude']
-    top_right_longitude = data['top_right_corner']['longitude']
-    top_right_latitude = data['top_right_corner']['latitude']
+    bottom_left_longitude = float(data['bottom_left_corner']['longitude'])
+    bottom_left_latitude = float(data['bottom_left_corner']['latitude'])
+    top_right_longitude = float(data['top_right_corner']['longitude'])
+    top_right_latitude = float(data['top_right_corner']['latitude'])
 
     bottom_left_vertical_id, bottom_left_horizontal_id = get_square_id_by_location(bottom_left_latitude,
                                                                                    bottom_left_longitude)
@@ -102,6 +117,12 @@ def get_squares_data(request):
             'color': square.owner.color,
         })
 
+    print(squares)
+
+    return JsonResponse({
+        'squares': squares,
+    })
+
 
 '''
 Returns user's score
@@ -123,8 +144,8 @@ Returns top 5 users
 '''
 @require_GET
 def get_scoreboard(request):
-    raw_scoreboard = UserProfile.objects.annotate(score=Count('UserProfile__Square')).\
-        order_by('-score')[:5]
+    raw_scoreboard = UserProfile.objects.annotate(num_squares=Count('square')).\
+        order_by('-num_squares')[:5]
 
     scoreboard = []
     for current_user in raw_scoreboard:
@@ -143,10 +164,10 @@ Returns nearest grid square
 '''
 @require_GET
 def get_nearest_square(request):
-    data = request['GET']
+    data = request.GET
 
-    latitude = data['latitude']
-    longitude = data['longitude']
+    latitude = float(data['latitude'])
+    longitude = float(data['longitude'])
 
     vertical_id, horizontal_id = get_square_id_by_location(latitude, longitude)
 
@@ -155,6 +176,10 @@ def get_nearest_square(request):
         'nearest_longitude': horizontal_id,
     })
 
+
+'''
+Returns user's color by his id
+'''
 @require_GET
 def get_user_color(request):
     data = request.GET
@@ -164,4 +189,39 @@ def get_user_color(request):
 
     return JsonResponse({
         'user_color': user_color,
+    })
+
+
+'''
+Drops a bomb on user's current location
+'''
+@require_POST
+@csrf_exempt
+def drop_bomb(request):
+    data = json.loads(request.body)
+
+    user_id = data['user_id']
+    latitude = float(data['latitude'])
+    longitude = float(data['longitude'])
+
+    base_vertical_id, base_horizontal_id = get_square_id_by_location(latitude, longitude)
+
+    for vertical_delta in range(-50, 51):
+        for horizontal_delta in range(-50, 51):
+            vertical_id = base_vertical_id + vertical_delta
+            horizontal_id = base_horizontal_id + horizontal_delta
+
+            if Square.objects.filter(vertical_id=vertical_id,
+                                     horizontal_id=horizontal_id).exists():  # Check if this square exists already
+                current_square = Square.objects.get(vertical_id=vertical_id, horizontal_id=horizontal_id)
+                current_square.owner = UserProfile.objects.get(user_id=user_id)
+                current_square.save()
+            else:
+                current_square = Square(vertical_id=vertical_id,
+                                        horizontal_id=horizontal_id,
+                                        owner=UserProfile.objects.get(user_id=user_id))
+                current_square.save()
+
+    return JsonResponse({
+        'status': 'OK',
     })
