@@ -244,7 +244,13 @@ def wipe(request):
 
 
 def report(request):
-    print(request.META['REMOTE_ADDR'])
-    print(request.META['HTTP_X_FORWARDED_FOR'])
+    try:
+        print(request.META['REMOTE_ADDR'])
+    except:
+        pass
+    try:
+        print(request.META['HTTP_X_FORWARDED_FOR'])
+    except:
+        pass
 
     return HttpResponse(status=418)
