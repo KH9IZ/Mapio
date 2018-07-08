@@ -1,4 +1,4 @@
-import random
+import random, json
 
 
 '''
@@ -13,6 +13,21 @@ Returns a random hex-encoded color
 '''
 def get_random_color():
     return "#%06x64" % random.randint(0, 0xFFFFFF)  # Magic
+
+
+'''
+Retrieves request data
+'''
+def load_data(request):
+    print('=' * 20)
+    print(request.body)
+    print('-' * 20)
+    print(request.POST)
+    print('=' * 20)
+    if len(request.body) > 0:
+        return json.loads(request.body)
+    else:
+        return request.POST
 
 
 SCOREBOARD_USERS_COUNTER = 5

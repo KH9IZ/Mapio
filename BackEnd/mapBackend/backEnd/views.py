@@ -1,12 +1,10 @@
-import json
-
 from django.db.models import Count
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST, require_GET
 
 from backEnd.models import Square, UserProfile
-from backEnd.utils import get_square_id_by_location, get_random_color
+from backEnd.utils import get_square_id_by_location, get_random_color, load_data
 
 '''
 API documentation at https://docs.google.com/document/d/1pbdqBmTb9zvqssmj4nSL7hbwmlvXY7tLn7uxyroTjP0/edit
@@ -24,10 +22,7 @@ Adds user to db on first login
 @require_POST
 @csrf_exempt
 def add_user(request):
-    try:
-        data = json.loads(request.body)
-    except:
-        data = request.POST
+    data = load_data(request)
 
     user_id = data['user_id']
     new_user = UserProfile(user_id=user_id, color=get_random_color())
@@ -44,10 +39,7 @@ Resets square owner
 @require_POST
 @csrf_exempt
 def set_square_state(request):
-    try:
-        data = json.loads(request.body)
-    except:
-        data = request.POST
+    data = load_data(request)
 
     user_id = data['user_id']
     latitude = float(data['latitude'])
@@ -55,10 +47,9 @@ def set_square_state(request):
 
     vertical_id, horizontal_id = get_square_id_by_location(latitude, longitude)
 
-    if Square.objects.filter(vertical_id=vertical_id, horizontal_id=horizontal_id).exists():  # Check if this square exists already
-        current_square = Square.objects.get(vertical_id=vertical_id, horizontal_id=horizontal_id)
-        current_square.owner = UserProfile.objects.get(user_id=user_id)
-        current_square.save()
+    # Check if this square exists already
+    if Square.objects.filter(vertical_id=vertical_id, horizontal_id=horizontal_id).exists():
+        Square.objects.filter(vertical_id=vertical_id, horizontal_id=horizontal_id).update(owner=user_id)
     else:
         current_square = Square(vertical_id=vertical_id,
                                 horizontal_id=horizontal_id,
@@ -198,10 +189,7 @@ Drops a bomb on user's current location
 @require_POST
 @csrf_exempt
 def drop_bomb(request):
-    try:
-        data = json.loads(request.body)
-    except:
-        data = request.POST
+    data = load_data(request)
 
     user_id = data['user_id']
     latitude = float(data['latitude'])
@@ -214,11 +202,9 @@ def drop_bomb(request):
             vertical_id = base_vertical_id + vertical_delta
             horizontal_id = base_horizontal_id + horizontal_delta
 
-            if Square.objects.filter(vertical_id=vertical_id,
-                                     horizontal_id=horizontal_id).exists():  # Check if this square exists already
-                current_square = Square.objects.get(vertical_id=vertical_id, horizontal_id=horizontal_id)
-                current_square.owner = UserProfile.objects.get(user_id=user_id)
-                current_square.save()
+            # Check if this square exists already
+            if Square.objects.filter(vertical_id=vertical_id, horizontal_id=horizontal_id).exists():
+                Square.objects.filter(vertical_id=vertical_id, horizontal_id=horizontal_id).update(owner=user_id)
             else:
                 current_square = Square(vertical_id=vertical_id,
                                         horizontal_id=horizontal_id,
