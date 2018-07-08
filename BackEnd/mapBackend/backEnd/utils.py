@@ -19,13 +19,8 @@ def get_random_color():
 Retrieves request data
 '''
 def load_data(request):
-    print('=' * 20)
-    print(request.body)
-    print('-' * 20)
-    print(request.POST)
-    print('=' * 20)
     if len(request.body) > 0:
-        return json.loads(request.body)
+        return json.loads(request.body.decode('utf-8'))
     else:
         return request.POST
 
