@@ -12,7 +12,7 @@ def get_square_id_by_location(latitude, longitude):
 Returns a random hex-encoded color
 '''
 def get_random_color():
-    return "#%06x64" % random.randint(0, 0xFFFFFF)  # Magic
+    return "#%06xFF" % random.randint(0, 0xFFFFFF)  # Magic
 
 
 '''

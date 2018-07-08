@@ -108,8 +108,6 @@ def get_squares_data(request):
             'color': square.owner.color,
         })
 
-    print(squares)
-
     return JsonResponse({
         'squares': squares,
     })
