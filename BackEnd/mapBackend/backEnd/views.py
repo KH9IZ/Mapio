@@ -51,9 +51,9 @@ def set_square_state(request):
     request_time = time.time()
 
     # Check if this square exists already
-    if Square.objects.filter(vertical_id=vertical_id, horizontal_id=horizontal_id,
-                             time_stamp_lte=(request_time-CHANGE_SQUARE_DELAY)).exists():
-        Square.objects.filter(vertical_id=vertical_id, horizontal_id=horizontal_id).update(owner=user_id, time_stamp=request_time)
+    if Square.objects.filter(vertical_id=vertical_id, horizontal_id=horizontal_id).exists():
+        Square.objects.filter(vertical_id=vertical_id, horizontal_id=horizontal_id,
+                              time_stamp_lte=(request_time-CHANGE_SQUARE_DELAY)).update(owner=user_id, time_stamp=request_time)
     else:
         current_square = Square(vertical_id=vertical_id,
                                 horizontal_id=horizontal_id,
@@ -207,9 +207,9 @@ def drop_bomb(request):
             horizontal_id = base_horizontal_id + horizontal_delta
 
             # Check if this square exists already
-            if Square.objects.filter(vertical_id=vertical_id, horizontal_id=horizontal_id,
-                                     time_stamp_lte=(request_time-CHANGE_SQUARE_DELAY)).exists():
-                Square.objects.filter(vertical_id=vertical_id, horizontal_id=horizontal_id).update(owner=user_id)
+            if Square.objects.filter(vertical_id=vertical_id, horizontal_id=horizontal_id).exists():
+                Square.objects.filter(vertical_id=vertical_id, horizontal_id=horizontal_id,
+                                      time_stamp_lte=(request_time-CHANGE_SQUARE_DELAY)).update(owner=user_id)
             else:
                 current_square = Square(vertical_id=vertical_id,
                                         horizontal_id=horizontal_id,
