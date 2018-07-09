@@ -25,14 +25,19 @@ Adds user to db on first login
 @csrf_exempt
 def add_user(request):
     data = load_data(request)
-
     user_id = data['user_id']
-    new_user = UserProfile(user_id=user_id, color=get_random_color())
-    new_user.save()
 
-    return JsonResponse({
-        'user_color': new_user.color,
-    })
+    if not UserProfile.objects.filter(user_id=user_id).exists():
+        new_user = UserProfile(user_id=user_id, color=get_random_color())
+        new_user.save()
+
+        return JsonResponse({
+            'user_color': new_user.color,
+        })
+    else:
+         return JsonResponse({
+             'user_color': UserProfile.objects.get(user_id=user_id).color
+         })
 
 
 '''
