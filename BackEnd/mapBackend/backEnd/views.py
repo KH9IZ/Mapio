@@ -79,11 +79,12 @@ def get_frame_data(request):
                                                                                    bottom_left_longitude)
     top_right_vertical_id, top_right_horizontal_id = get_square_id_by_location(top_right_latitude,
                                                                                top_right_longitude)
+    reserve = 2
 
-    for square in Square.objects.filter(horizontal_id__gte=bottom_left_horizontal_id,
-                                        horizontal_id__lte=top_right_horizontal_id,
-                                        vertical_id__gte=bottom_left_vertical_id,
-                                        vertical_id__lte=top_right_vertical_id):
+    for square in Square.objects.filter(horizontal_id__gte=(bottom_left_horizontal_id - reserve),
+                                        horizontal_id__lte=(top_right_horizontal_id + reserve),
+                                        vertical_id__gte=(bottom_left_vertical_id - reserve),
+                                        vertical_id__lte=(top_right_vertical_id + reserve)):
         response.append({'horizontal_id': square.horizontal_id,
                          'vertical_id': square.vertical_id,
                          'color': square.owner.color})
@@ -195,8 +196,8 @@ def drop_bomb(request):
 
     base_vertical_id, base_horizontal_id = get_square_id_by_location(latitude, longitude)
 
-    for vertical_delta in range(-50, 51):
-        for horizontal_delta in range(-50, 51):
+    for vertical_delta in range(-3, 4):
+        for horizontal_delta in range(-3, 4):
             vertical_id = base_vertical_id + vertical_delta
             horizontal_id = base_horizontal_id + horizontal_delta
 
