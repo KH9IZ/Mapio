@@ -75,10 +75,10 @@ def get_frame_data(request):
     data = request.GET
     response = []
 
-    bottom_left_longitude = float(data['bottom_left_corner']['longitude'])
-    bottom_left_latitude = float(data['bottom_left_corner']['latitude'])
-    top_right_longitude = float(data['top_right_corner']['longitude'])
-    top_right_latitude = float(data['top_right_corner']['latitude'])
+    bottom_left_longitude = float(data['bottom_left_longitude'])
+    bottom_left_latitude = float(data['bottom_left_latitude'])
+    top_right_longitude = float(data['top_right_longitude'])
+    top_right_latitude = float(data['top_right_latitude'])
 
     bottom_left_vertical_id, bottom_left_horizontal_id = get_square_id_by_location(bottom_left_latitude,
                                                                                    bottom_left_longitude)
