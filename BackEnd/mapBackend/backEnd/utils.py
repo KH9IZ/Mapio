@@ -26,3 +26,5 @@ def load_data(request):
 
 
 SCOREBOARD_USERS_COUNTER = 5
+CHANGE_SQUARE_DELAY = 5.0  # (sec)
+
