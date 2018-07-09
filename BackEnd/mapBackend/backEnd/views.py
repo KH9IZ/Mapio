@@ -1,10 +1,12 @@
+import time
+
 from django.db.models import Count
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST, require_GET
 
 from backEnd.models import Square, UserProfile
-from backEnd.utils import get_square_id_by_location, get_random_color, load_data
+from backEnd.utils import get_square_id_by_location, get_random_color, load_data, CHANGE_SQUARE_DELAY
 
 '''
 API documentation at https://docs.google.com/document/d/1pbdqBmTb9zvqssmj4nSL7hbwmlvXY7tLn7uxyroTjP0/edit
@@ -46,14 +48,17 @@ def set_square_state(request):
     longitude = float(data['longitude'])
 
     vertical_id, horizontal_id = get_square_id_by_location(latitude, longitude)
+    request_time = time.time()
 
     # Check if this square exists already
     if Square.objects.filter(vertical_id=vertical_id, horizontal_id=horizontal_id).exists():
-        Square.objects.filter(vertical_id=vertical_id, horizontal_id=horizontal_id).update(owner=user_id)
+        Square.objects.filter(vertical_id=vertical_id, horizontal_id=horizontal_id,
+                              time_stamp_lte=(request_time-CHANGE_SQUARE_DELAY)).update(owner=user_id, time_stamp=request_time)
     else:
         current_square = Square(vertical_id=vertical_id,
                                 horizontal_id=horizontal_id,
-                                owner=UserProfile.objects.get(user_id=user_id))
+                                owner=UserProfile.objects.get(user_id=user_id),
+                                time_stamp=request_time)
         current_square.save()
 
     return JsonResponse({
@@ -195,6 +200,7 @@ def drop_bomb(request):
     longitude = float(data['longitude'])
 
     base_vertical_id, base_horizontal_id = get_square_id_by_location(latitude, longitude)
+    request_time = time.time()
 
     for vertical_delta in range(-3, 4):
         for horizontal_delta in range(-3, 4):
@@ -203,7 +209,8 @@ def drop_bomb(request):
 
             # Check if this square exists already
             if Square.objects.filter(vertical_id=vertical_id, horizontal_id=horizontal_id).exists():
-                Square.objects.filter(vertical_id=vertical_id, horizontal_id=horizontal_id).update(owner=user_id)
+                Square.objects.filter(vertical_id=vertical_id, horizontal_id=horizontal_id,
+                                      time_stamp_lte=(request_time-CHANGE_SQUARE_DELAY)).update(owner=user_id)
             else:
                 current_square = Square(vertical_id=vertical_id,
                                         horizontal_id=horizontal_id,
