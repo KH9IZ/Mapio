@@ -78,7 +78,7 @@ TODO 0 meridian error
 @require_GET
 def get_frame_data(request):
     data = request.GET
-    response = []
+    squares = []
 
     bottom_left_longitude = float(data['bottom_left_longitude'])
     bottom_left_latitude = float(data['bottom_left_latitude'])
@@ -89,17 +89,23 @@ def get_frame_data(request):
                                                                                    bottom_left_longitude)
     top_right_vertical_id, top_right_horizontal_id = get_square_id_by_location(top_right_latitude,
                                                                                top_right_longitude)
-    reserve = 2
+    RESERVE = 2
+    print(bottom_left_horizontal_id - RESERVE)
+    print(top_right_horizontal_id + RESERVE)
+    print(bottom_left_vertical_id - RESERVE)
+    print(top_right_vertical_id + RESERVE)
 
-    for square in Square.objects.filter(horizontal_id__gte=(bottom_left_horizontal_id - reserve),
-                                        horizontal_id__lte=(top_right_horizontal_id + reserve),
-                                        vertical_id__gte=(bottom_left_vertical_id - reserve),
-                                        vertical_id__lte=(top_right_vertical_id + reserve)):
-        response.append({'horizontal_id': square.horizontal_id,
+    for square in Square.objects.filter(horizontal_id__gte=(bottom_left_horizontal_id - RESERVE),
+                                        horizontal_id__lte=(top_right_horizontal_id + RESERVE),
+                                        vertical_id__gte=(bottom_left_vertical_id - RESERVE),
+                                        vertical_id__lte=(top_right_vertical_id + RESERVE)):
+        squares.append({'horizontal_id': square.horizontal_id,
                          'vertical_id': square.vertical_id,
                          'color': square.owner.color})
+
+    print(squares)
     return JsonResponse({
-        'squares': response
+        'squares': squares,
     })
 
 
