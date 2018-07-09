@@ -1,4 +1,4 @@
-import random, json
+import random, json, datetime, pytz
 
 
 '''
@@ -12,7 +12,7 @@ def get_square_id_by_location(latitude, longitude):
 Returns a random hex-encoded color
 '''
 def get_random_color():
-    return "#ff%06x" % random.randint(0, 0xFFFFFF)  # Magic
+    return "#64%06x" % random.randint(0, 0xFFFFFF)  # Magic
 
 
 '''
@@ -27,4 +27,4 @@ def load_data(request):
 
 SCOREBOARD_USERS_COUNTER = 5
 CHANGE_SQUARE_DELAY = 5.0  # (sec)
-
+DEFAULT_DATETIME = datetime.datetime(2013, 11, 20, 20, 8, 7, 127325, tzinfo=pytz.UTC)

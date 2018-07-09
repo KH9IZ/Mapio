@@ -1,4 +1,4 @@
-import time
+import datetime
 
 from django.db.models import Count
 from django.http import JsonResponse, HttpResponse
@@ -53,17 +53,17 @@ def set_square_state(request):
     longitude = float(data['longitude'])
 
     vertical_id, horizontal_id = get_square_id_by_location(latitude, longitude)
-    request_time = time.time()
+    request_time = datetime.datetime.now()
 
-    # Check if this square exists already
     if Square.objects.filter(vertical_id=vertical_id, horizontal_id=horizontal_id).exists():
-        Square.objects.filter(vertical_id=vertical_id, horizontal_id=horizontal_id,
-                              time_stamp_lte=(request_time-CHANGE_SQUARE_DELAY)).update(owner=user_id, time_stamp=request_time)
+        current_square = Square.objects.get(vertical_id=vertical_id, horizontal_id=horizontal_id)
+        if (request_time - current_square.timestamp).total_seconds() > CHANGE_SQUARE_DELAY:
+            Square.objects.filter(vertical_id=vertical_id, horizontal_id=horizontal_id).update(owner=user_id, timestamp=request_time)
     else:
         current_square = Square(vertical_id=vertical_id,
                                 horizontal_id=horizontal_id,
                                 owner=UserProfile.objects.get(user_id=user_id),
-                                time_stamp=request_time)
+                                timestamp=request_time)
         current_square.save()
 
     return JsonResponse({
