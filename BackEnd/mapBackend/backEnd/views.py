@@ -58,7 +58,8 @@ def set_square_state(request):
     if Square.objects.filter(vertical_id=vertical_id, horizontal_id=horizontal_id).exists():
         current_square = Square.objects.get(vertical_id=vertical_id, horizontal_id=horizontal_id)
         if (request_time - current_square.timestamp).total_seconds() > CHANGE_SQUARE_DELAY:
-            Square.objects.filter(vertical_id=vertical_id, horizontal_id=horizontal_id).update(owner=user_id, timestamp=request_time)
+            Square.objects.filter(vertical_id=vertical_id, horizontal_id=horizontal_id)\
+                .update(owner=UserProfile.objects.get(user_id=user_id), timestamp=request_time)
     else:
         current_square = Square(vertical_id=vertical_id,
                                 horizontal_id=horizontal_id,
@@ -90,10 +91,6 @@ def get_frame_data(request):
     top_right_vertical_id, top_right_horizontal_id = get_square_id_by_location(top_right_latitude,
                                                                                top_right_longitude)
     RESERVE = 2
-    print(bottom_left_horizontal_id - RESERVE)
-    print(top_right_horizontal_id + RESERVE)
-    print(bottom_left_vertical_id - RESERVE)
-    print(top_right_vertical_id + RESERVE)
 
     for square in Square.objects.filter(horizontal_id__gte=(bottom_left_horizontal_id - RESERVE),
                                         horizontal_id__lte=(top_right_horizontal_id + RESERVE),
@@ -211,21 +208,23 @@ def drop_bomb(request):
     longitude = float(data['longitude'])
 
     base_vertical_id, base_horizontal_id = get_square_id_by_location(latitude, longitude)
-    request_time = time.time()
+    request_time = datetime.datetime.now().replace(tzinfo=pytz.UTC)
 
     for vertical_delta in range(-3, 4):
         for horizontal_delta in range(-3, 4):
             vertical_id = base_vertical_id + vertical_delta
             horizontal_id = base_horizontal_id + horizontal_delta
 
-            # Check if this square exists already
             if Square.objects.filter(vertical_id=vertical_id, horizontal_id=horizontal_id).exists():
-                Square.objects.filter(vertical_id=vertical_id, horizontal_id=horizontal_id,
-                                      time_stamp_lte=(request_time-CHANGE_SQUARE_DELAY)).update(owner=user_id)
+                current_square = Square.objects.get(vertical_id=vertical_id, horizontal_id=horizontal_id)
+                if (request_time - current_square.timestamp).total_seconds() > CHANGE_SQUARE_DELAY:
+                    Square.objects.filter(vertical_id=vertical_id, horizontal_id=horizontal_id) \
+                        .update(owner=UserProfile.objects.get(user_id=user_id), timestamp=request_time)
             else:
                 current_square = Square(vertical_id=vertical_id,
                                         horizontal_id=horizontal_id,
-                                        owner=UserProfile.objects.get(user_id=user_id))
+                                        owner=UserProfile.objects.get(user_id=user_id),
+                                        timestamp=request_time)
                 current_square.save()
 
     return JsonResponse({
