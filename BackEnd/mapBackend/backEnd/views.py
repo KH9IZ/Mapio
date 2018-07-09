@@ -1,4 +1,4 @@
-import datetime
+import datetime, pytz
 
 from django.db.models import Count
 from django.http import JsonResponse, HttpResponse
@@ -6,7 +6,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST, require_GET
 
 from backEnd.models import Square, UserProfile
-from backEnd.utils import get_square_id_by_location, get_random_color, load_data, CHANGE_SQUARE_DELAY
+from backEnd.utils import get_square_id_by_location, get_random_color, load_data, CHANGE_SQUARE_DELAY, DEFAULT_DATETIME
 
 '''
 API documentation at https://docs.google.com/document/d/1pbdqBmTb9zvqssmj4nSL7hbwmlvXY7tLn7uxyroTjP0/edit
@@ -53,12 +53,10 @@ def set_square_state(request):
     longitude = float(data['longitude'])
 
     vertical_id, horizontal_id = get_square_id_by_location(latitude, longitude)
-    request_time = datetime.datetime.now()
-    print(request_time.tzinfo)
+    request_time = datetime.datetime.now().replace(tzinfo=pytz.UTC)
 
     if Square.objects.filter(vertical_id=vertical_id, horizontal_id=horizontal_id).exists():
         current_square = Square.objects.get(vertical_id=vertical_id, horizontal_id=horizontal_id)
-        print(current_square.timestamp.tzinfo)
         if (request_time - current_square.timestamp).total_seconds() > CHANGE_SQUARE_DELAY:
             Square.objects.filter(vertical_id=vertical_id, horizontal_id=horizontal_id).update(owner=user_id, timestamp=request_time)
     else:
