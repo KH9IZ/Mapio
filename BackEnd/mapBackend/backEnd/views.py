@@ -54,9 +54,11 @@ def set_square_state(request):
 
     vertical_id, horizontal_id = get_square_id_by_location(latitude, longitude)
     request_time = datetime.datetime.now()
+    print(request_time.tzinfo)
 
     if Square.objects.filter(vertical_id=vertical_id, horizontal_id=horizontal_id).exists():
         current_square = Square.objects.get(vertical_id=vertical_id, horizontal_id=horizontal_id)
+        print(current_square.timestamp.tzinfo)
         if (request_time - current_square.timestamp).total_seconds() > CHANGE_SQUARE_DELAY:
             Square.objects.filter(vertical_id=vertical_id, horizontal_id=horizontal_id).update(owner=user_id, timestamp=request_time)
     else:
