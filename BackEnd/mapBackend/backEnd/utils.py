@@ -1,4 +1,4 @@
-import random, json, datetime, pytz
+import random, json, datetime
 
 
 '''
@@ -27,4 +27,4 @@ def load_data(request):
 
 SCOREBOARD_USERS_COUNTER = 5
 CHANGE_SQUARE_DELAY = 5.0  # (sec)
-DEFAULT_DATETIME = datetime.datetime(2013, 11, 20, 20, 8, 7, 127325, tzinfo=pytz.UTC)
+DEFAULT_DATETIME = datetime.datetime(2013, 11, 20, 20, 8, 7, 127325, tzinfo=None)
