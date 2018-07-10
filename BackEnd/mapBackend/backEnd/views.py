@@ -53,8 +53,7 @@ def set_square_state(request):
     # Check if this square exists already
     if Square.objects.filter(vertical_id=vertical_id, horizontal_id=horizontal_id).exists():
         Square.objects.filter(vertical_id=vertical_id, horizontal_id=horizontal_id,
-                              time_stamp_lte=(request_time-CHANGE_SQUARE_DELAY)).update(owner=user_id,
-                                                                                        time_stamp=request_time)
+                              time_stamp_lte=(request_time-CHANGE_SQUARE_DELAY)).update(owner=user_id, time_stamp=request_time)
     else:
         current_square = Square(vertical_id=vertical_id,
                                 horizontal_id=horizontal_id,
@@ -210,12 +209,11 @@ def drop_bomb(request):
             # Check if this square exists already
             if Square.objects.filter(vertical_id=vertical_id, horizontal_id=horizontal_id).exists():
                 Square.objects.filter(vertical_id=vertical_id, horizontal_id=horizontal_id,
-                                      time_stamp_lte=(request_time-CHANGE_SQUARE_DELAY)).update(owner=user_id, time_stamp=request_time)
+                                      time_stamp_lte=(request_time-CHANGE_SQUARE_DELAY)).update(owner=user_id)
             else:
                 current_square = Square(vertical_id=vertical_id,
                                         horizontal_id=horizontal_id,
-                                        owner=UserProfile.objects.get(user_id=user_id),
-                                        time_stamp=request_time)
+                                        owner=UserProfile.objects.get(user_id=user_id))
                 current_square.save()
 
     return JsonResponse({

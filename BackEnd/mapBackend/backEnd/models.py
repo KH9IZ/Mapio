@@ -1,13 +1,12 @@
 from django.db import models
-
-# Create your models here.
+from backEnd.utils import DEFAULT_DATETIME
 
 
 class Square(models.Model):
     vertical_id = models.IntegerField(blank=False)
     horizontal_id = models.IntegerField(blank=False)
     owner = models.ForeignKey('UserProfile', on_delete=models.CASCADE)
-    time_stamp = models.IntegerField(blank=False)
+    timestamp = models.DateTimeField(null=False, default=DEFAULT_DATETIME)
 
     def __str__(self):
         return str(self.owner.user_id) + "_" + str(self.vertical_id) + "_" + str(self.horizontal_id)
